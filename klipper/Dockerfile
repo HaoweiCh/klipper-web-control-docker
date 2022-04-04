@@ -68,6 +68,8 @@ RUN sed -i 's|http://[^/]*|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list 
     locales \
     python2 \
     python3-libgpiod \
+    python3-numpy \
+    python3-matplotlib \
     rsync \
     supervisor \
     zlib1g-dev && \
