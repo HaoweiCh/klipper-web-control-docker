@@ -22,7 +22,7 @@ ENV LANG en_GB.UTF-8
 ENV LANGUAGE en_GB:en   
 
 # USER ${USER}
-USER ROOT
+USER root
 WORKDIR ${HOME}
 
 ### Klipper setup ###
