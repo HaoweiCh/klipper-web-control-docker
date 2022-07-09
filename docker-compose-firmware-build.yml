@@ -1,0 +1,17 @@
+version: '3.5'
+
+services:
+  klipper-firmware:
+    image: heawercher/klipper-firmware
+    build:
+      dockerfile: ./klipper/builder.Dockerfile
+      context: .
+    container_name: klipper-firmware
+    volumes:
+      - gcode_files:/home/klippy/gcode_files
+      - ./config:/home/klippy/.config
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+
+volumes: 
+  gcode_files:
