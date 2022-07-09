@@ -21,8 +21,7 @@ ENV LC_ALL en_GB.UTF-8
 ENV LANG en_GB.UTF-8  
 ENV LANGUAGE en_GB:en   
 
-# USER ${USER}
-USER root
+USER ${USER}
 WORKDIR ${HOME}
 
 ### Klipper setup ###
@@ -33,5 +32,7 @@ RUN ${KLIPPER_VENV_DIR}/bin/pip install wheel
 RUN ${KLIPPER_VENV_DIR}/bin/pip install -r klipper/scripts/klippy-requirements.txt
 
 WORKDIR ${HOME}/klipper
+
+USER root
 
 CMD ["bash"]
