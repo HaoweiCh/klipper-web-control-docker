@@ -10,6 +10,7 @@ services:
     volumes:
       - gcode_files:/home/klippy/gcode_files
       - ./config:/home/klippy/.config
+      - ./klipper/.config:/home/klippy/klippy/.config
     # devices:
     #   - /dev/ttyUSB0:/dev/ttyUSB0
     command: sleep 3600

@@ -14,6 +14,9 @@ RUN apt-get update && \
 RUN apt-get update && \
     apt-get install -y virtualenv python-dev libffi-dev build-essential libncurses-dev libusb-dev gpiod python3-virtualenv python3-dev libopenjp2-7 python3-libgpiod liblmdb-dev libsodium-dev
 
+RUN apt-get update && \
+    apt-get install -y gcc-arm-none-eabi
+
 RUN sed -i -e 's/# en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/' /etc/locale.gen
 RUN locale-gen
 
