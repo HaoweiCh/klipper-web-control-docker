@@ -93,6 +93,8 @@ RUN useradd --user-group --no-log-init --shell /bin/false -m -d ${HOME} ${USER} 
     mkdir -p /usr/lib/python3 && \
     ln -s /usr/local/lib/python3.10/site-packages /usr/lib/python3/dist-packages
 
+RUN usermod -aG root ${USER}
+
 USER ${USER}
 WORKDIR ${HOME}
 
@@ -102,8 +104,6 @@ VOLUME ${HOME}/gcode_files
 VOLUME ${CONFIG_DIR}
 
 EXPOSE 7125
-
-RUN usermod -aG root ${USER}
 
 COPY --chown=${USER}:${USER} --from=builder ${HOME}/klipper ${HOME}/klipper
 COPY --chown=${USER}:${USER} --from=builder ${KLIPPER_VENV_DIR} ${KLIPPER_VENV_DIR}
