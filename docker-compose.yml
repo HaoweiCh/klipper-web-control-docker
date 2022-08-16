@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   klipper:
-    image: dimalo/klipper-moonraker
+    image: heawercher/klipper-moonraker
     build:
       dockerfile: ./klipper/Dockerfile
       context: .
@@ -23,9 +23,7 @@ services:
       # - <<your_config_path>>:/home/klippy/.config
       # - ./printer.cfg:/home/klippy/.config/printer.cfg
     # mount serial device - take care to grant sufficient permissions to the device: <host_dev>:<container_dev>
-    # put <container_dev> into your printer.cfg
-    devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0
+    privileged: true
 
   ##################################################################
   # Example config for a second printer on a different serial port
