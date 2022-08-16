@@ -103,7 +103,7 @@ VOLUME ${CONFIG_DIR}
 
 EXPOSE 7125
 
-USER root
+RUN usermod -aG root ${USER}
 
 COPY --chown=${USER}:${USER} --from=builder ${HOME}/klipper ${HOME}/klipper
 COPY --chown=${USER}:${USER} --from=builder ${KLIPPER_VENV_DIR} ${KLIPPER_VENV_DIR}
@@ -113,4 +113,4 @@ COPY --chown=${USER}:${USER} config ${CONFIG_DIR}
 
 COPY klipper/supervisord.conf /etc/supervisord/conf.d/supervisord.conf
 COPY klipper/*.ini /etc/supervisord/
-CMD ["supervisord", "-c", "/etc/supervisord/conf.d/supervisord.conf"]
+CMD supervisord -c /etc/supervisord/conf.d/supervisord.conf
