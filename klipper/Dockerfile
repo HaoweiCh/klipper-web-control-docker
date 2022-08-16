@@ -105,6 +105,8 @@ VOLUME ${CONFIG_DIR}
 
 EXPOSE 7125
 
+USER root
+
 COPY --chown=${USER}:${USER} --from=builder ${HOME}/klipper ${HOME}/klipper
 COPY --chown=${USER}:${USER} --from=builder ${KLIPPER_VENV_DIR} ${KLIPPER_VENV_DIR}
 COPY --chown=${USER}:${USER} --from=builder ${HOME}/moonraker ${HOME}/moonraker
