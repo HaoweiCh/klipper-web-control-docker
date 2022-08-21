@@ -1,6 +1,8 @@
 ![Mainsail Multiarch Image CI](https://github.com/dimalo/klipper-web-control-docker/workflows/Mainsail%20Multiarch%20Image%20CI/badge.svg)
 ![Klipper Moonraker Multiarch Image CI](https://github.com/dimalo/klipper-web-control-docker/workflows/Klipper%20Moonraker%20Multiarch%20Image%20CI/badge.svg)
 
+**目前默认适配的打印机是 ender3 s1 国行版本（STM32F401）**
+
 # klipper-web-control-docker
 __Klipper with Moonraker shipped with Fluidd and/or Mainsail__
 
