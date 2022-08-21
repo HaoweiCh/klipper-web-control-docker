@@ -13,4 +13,9 @@ tasks:
 
   firmware:
     cmds:
-      - docker-compose -f docker-compose-firmware-build.yml {{.CLI_ARGS}} 
+      - docker-compose -f docker-compose-firmware-build.yml {{.CLI_ARGS}}
+
+  fw-build:
+    cmds:
+      - docker-compose -f docker-compose-firmware-build.yml build klipper-firmware
+   

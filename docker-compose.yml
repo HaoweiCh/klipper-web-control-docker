@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   klipper:
-    image: heawercher/klipper-moonraker
+    image: dimalo/klipper-moonraker
     build:
       dockerfile: ./klipper/Dockerfile
       context: .
@@ -15,6 +15,7 @@ services:
     restart: unless-stopped
     volumes:
       - gcode_files:/home/klippy/gcode_files
+      - /dev:/dev
       # be aware to create your own branch if you mount the config folder as it will be updated on the main branch
       # that way you can merge upstream changes to your customized configs
       # - ./config:/home/klippy/.config
