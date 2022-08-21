@@ -9,7 +9,7 @@ services:
     container_name: klipper-firmware
     volumes:
       - gcode_files:/home/klippy/gcode_files
-      - ./config:/home/klippy/.config
+      - ./klipper/build-config:/home/klippy/klipper/.config
       - ./klipper/config:/home/klippy/klippy/.config
     # devices:
     #   - /dev/ttyUSB0:/dev/ttyUSB0
