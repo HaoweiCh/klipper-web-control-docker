@@ -55,8 +55,9 @@ services:
   #   devices:
   #     - /dev/ttyACM0:/dev/ttyACM0
 
+
   fluidd:
-    image: cadriel/fluidd
+    image: dimalo/fluidd
     # build:
     #   dockerfile: Dockerfile
     #   context: frontend
@@ -71,23 +72,24 @@ services:
       - klipper:klipper
       # - klipper_another_printer:klipper_another_printer
 
-  mainsail:
-    image: dimalo/mainsail
-    build:
-      dockerfile: Dockerfile
-      context: frontend
-      args:
-        FRONTEND_ZIP_URL: https://github.com/meteyou/mainsail/releases/latest/download/mainsail.zip
-    container_name: mainsail
-    ports:
-      - 8011:80
-    depends_on:
-      - klipper
-      # - klipper_another_printer
-    links:
-      - klipper:klipper
-      # - klipper_another_printer:klipper_another_printer
+  # mainsail:
+  #   image: dimalo/mainsail
+  #   build:
+  #     dockerfile: Dockerfile
+  #     context: frontend
+  #     args:
+  #       FRONTEND_ZIP_URL: https://github.com/meteyou/mainsail/releases/latest/download/mainsail.zip
+  #   container_name: mainsail
+  #   ports:
+  #     - 8011:80
+  #   depends_on:
+  #     - klipper
+  #     # - klipper_another_printer
+  #   links:
+  #     - klipper:klipper
+  #     # - klipper_another_printer:klipper_another_printer
 
 volumes:
   gcode_files:
   moonraker_data:
+
