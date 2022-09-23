@@ -9,6 +9,9 @@ ARG HOME=/home/${USER}
 ARG KLIPPER_VENV_DIR=${HOME}/klippy-env
 ARG MOONRAKER_VENV_DIR=${HOME}/moonraker-env
 
+ENV WHEELS=/wheels
+ENV PYTHONUNBUFFERED=1
+
 RUN useradd -d ${HOME} -ms /bin/bash ${USER}
 RUN sed -i 's|http://[^/]*|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list && \
     apt-get update && \
@@ -31,7 +34,8 @@ RUN sed -i 's|http://[^/]*|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list 
 
 RUN sed -i -e 's/# en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/' /etc/locale.gen
 RUN locale-gen
-RUN python -m pip install pip -U
+RUN python -m pip install -U pip wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
+    pip wheel --no-cache-dir -w ${WHEELS} supervisord-dependent-startup gpiod numpy matplotlib --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 
 ENV LC_ALL en_GB.UTF-8
 ENV LANG en_GB.UTF-8
@@ -46,10 +50,10 @@ ENV no_proxy localhost,127.0.0.1,.edu.cn,.cn,cdn-lfs-us-1.hf.co,.gvt1-cn.com
 ### Klipper setup ###
 RUN git clone --single-branch --branch ${KLIPPER_BRANCH} https://github.com/Klipper3d/klipper.git klipper
 RUN [ ! -d ${KLIPPER_VENV_DIR} ] && python3 -m venv ${KLIPPER_VENV_DIR}
-RUN ${KLIPPER_VENV_DIR}/bin/pip install wheel numpy --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 
 WORKDIR ${HOME}/klipper
-RUN ${KLIPPER_VENV_DIR}/bin/pip install -r scripts/klippy-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+RUN ${KLIPPER_VENV_DIR}/bin/pip install wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
+    ${KLIPPER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/klippy-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 RUN ${KLIPPER_VENV_DIR}/bin/python klippy/chelper/__init__.py
 RUN ${KLIPPER_VENV_DIR}/bin/python -m compileall klippy
 
@@ -60,10 +64,11 @@ WORKDIR ${HOME}
 # Install moonraker
 RUN git clone --single-branch --branch ${MOONRAKER_BRANCH} https://github.com/Arksine/moonraker.git moonraker
 RUN [ ! -d ${MOONRAKER_VENV_DIR} ] && python3 -m venv ${MOONRAKER_VENV_DIR}
-RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel gpiod --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 
 WORKDIR ${HOME}/moonraker
-RUN ${MOONRAKER_VENV_DIR}/bin/pip install -r scripts/moonraker-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
+    ${MOONRAKER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/moonraker-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+RUN ${MOONRAKER_VENV_DIR}/bin/python -m compileall moonraker
 
 FROM python:3.10-slim-bullseye as image
 
@@ -104,6 +109,9 @@ ENV CONFIG_DIR=${HOME}/.config
 ENV KLIPPER_VENV_DIR=${HOME}/klippy-env
 ENV MOONRAKER_VENV_DIR=${HOME}/moonraker-env
 
+ENV WHEELS=/wheels
+ENV PYTHONUNBUFFERED=1
+
 ARG DEVICE_GROUP=device
 ARG DEVICE_GID=987
 
@@ -112,9 +120,12 @@ RUN useradd --user-group --no-log-init --shell /bin/false -m -d ${HOME} ${USER} 
     usermod -a -G ${DEVICE_GROUP} ${USER} && \
     usermod -a -G tty ${USER} && \
     usermod -a -G dialout ${USER} && \
-    mkdir -p /var/log/supervisor && \
-    mkdir -p /var/log/klipper && chown ${USER}:${USER} /var/log/klipper ${HOME} && \
-    pip install --no-cache supervisord-dependent-startup gpiod numpy matplotlib --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
+    mkdir -p /var/log/supervisor ${HOME}/.cache/pip && \
+    mkdir -p /var/log/klipper && chown -R ${USER}:${USER} /var/log/klipper ${HOME}
+
+COPY --chown=${USER}:${USER} --from=builder ${WHEELS} ${WHEELS}
+
+RUN pip install --no-index -f ${WHEELS} supervisord-dependent-startup gpiod numpy matplotlib --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
     mkdir -p /usr/lib/python3 && \
     ln -s /usr/local/lib/python3.10/site-packages /usr/lib/python3/dist-packages
 
