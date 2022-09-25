@@ -68,7 +68,7 @@ RUN git clone --single-branch --branch ${MOONRAKER_BRANCH} https://github.com/Ar
 RUN [ ! -d ${MOONRAKER_VENV_DIR} ] && python3 -m venv ${MOONRAKER_VENV_DIR}
 
 WORKDIR ${HOME}/moonraker
-RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
+RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel gpiod --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
     ${MOONRAKER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/moonraker-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 RUN ${MOONRAKER_VENV_DIR}/bin/python -m compileall moonraker
 
