@@ -129,7 +129,8 @@ COPY --chown=${USER}:${USER} --from=builder ${WHEELS} ${WHEELS}
 
 RUN pip install --no-index -f ${WHEELS} supervisord-dependent-startup gpiod numpy matplotlib --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
     mkdir -p /usr/lib/python3 && \
-    ln -s /usr/local/lib/python3.10/site-packages /usr/lib/python3/dist-packages
+    ln -s /usr/local/lib/python3.10/site-packages /usr/lib/python3/dist-packages && \
+    rm -Rf ${WHEELS}
 
 RUN usermod -aG root ${USER}
 
