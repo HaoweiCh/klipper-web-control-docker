@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   klipper:
     image: dimalo/klipper-moonraker
@@ -15,6 +13,7 @@ services:
     restart: unless-stopped
     volumes:
       - gcode_files:/home/klippy/gcode_files
+      - ./klipper-src/:/home/klippy/klipper-src/
       - /dev:/dev
       # be aware to create your own branch if you mount the config folder as it will be updated on the main branch
       # that way you can merge upstream changes to your customized configs
@@ -56,7 +55,6 @@ services:
   #   devices:
   #     - /dev/ttyACM0:/dev/ttyACM0
 
-
   fluidd:
     image: cadriel/fluidd
     # build:
@@ -66,7 +64,7 @@ services:
     container_name: fluidd
     ports:
       - 8010:80
-    depends_on: 
+    depends_on:
       - klipper
       # - klipper_another_printer
     links:
@@ -83,14 +81,13 @@ services:
     container_name: mainsail
     ports:
       - 8011:80
-    depends_on: 
+    depends_on:
       - klipper
       # - klipper_another_printer
     links:
       - klipper:klipper
       # - klipper_another_printer:klipper_another_printer
 
-volumes: 
+volumes:
   gcode_files:
   moonraker_data:
-

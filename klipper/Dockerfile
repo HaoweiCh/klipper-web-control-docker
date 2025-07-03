@@ -10,39 +10,44 @@ ARG KLIPPER_VENV_DIR=${HOME}/klippy-env
 ARG MOONRAKER_VENV_DIR=${HOME}/moonraker-env
 
 RUN useradd -d ${HOME} -ms /bin/bash ${USER}
-RUN apt-get update && \
+RUN sed -i 's|http://[^/]*|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list && \
+    apt-get update && \
     apt-get install -y locales git sudo wget curl gzip tar python2 virtualenv python-dev libffi-dev build-essential libncurses-dev libusb-dev gpiod python3-virtualenv python3-dev libopenjp2-7 python3-libgpiod liblmdb-dev libsodium-dev
 
 RUN sed -i -e 's/# en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/' /etc/locale.gen
 RUN locale-gen
 
-ENV LC_ALL en_GB.UTF-8 
-ENV LANG en_GB.UTF-8  
-ENV LANGUAGE en_GB:en   
+ENV LC_ALL en_GB.UTF-8
+ENV LANG en_GB.UTF-8
+ENV LANGUAGE en_GB:en
 
 USER ${USER}
 WORKDIR ${HOME}
 
+ENV https_proxy http://10.168.8.22:6010
+ENV no_proxy localhost,127.0.0.1,.edu.cn,.cn,cdn-lfs-us-1.hf.co,.gvt1-cn.com
+
 ### Klipper setup ###
 RUN git clone --single-branch --branch ${KLIPPER_BRANCH} https://github.com/Klipper3d/klipper.git klipper
 RUN [ ! -d ${KLIPPER_VENV_DIR} ] && virtualenv -p python2 ${KLIPPER_VENV_DIR}
-RUN ${KLIPPER_VENV_DIR}/bin/python -m pip install pip -U
-RUN ${KLIPPER_VENV_DIR}/bin/pip install wheel
-RUN ${KLIPPER_VENV_DIR}/bin/pip install -r klipper/scripts/klippy-requirements.txt
+RUN ${KLIPPER_VENV_DIR}/bin/python -m pip install pip -U --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+RUN ${KLIPPER_VENV_DIR}/bin/pip install wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+RUN ${KLIPPER_VENV_DIR}/bin/pip install -r klipper/scripts/klippy-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 
 # Install moonraker
 RUN git clone --single-branch --branch ${MOONRAKER_BRANCH} https://github.com/Arksine/moonraker.git moonraker
 RUN [ ! -d ${MOONRAKER_VENV_DIR} ] && python3 -m venv ${MOONRAKER_VENV_DIR}
-RUN ${MOONRAKER_VENV_DIR}/bin/python -m pip install pip -U
-RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel gpiod
+RUN ${MOONRAKER_VENV_DIR}/bin/python -m pip install pip -U --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel gpiod --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 
-RUN ${MOONRAKER_VENV_DIR}/bin/pip install -r moonraker/scripts/moonraker-requirements.txt
+RUN ${MOONRAKER_VENV_DIR}/bin/pip install -r moonraker/scripts/moonraker-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 
 FROM python:3.10-slim-bullseye as image
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
+RUN sed -i 's|http://[^/]*|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list && \
+    apt-get update && \
     apt-get install -y \
     curl \
     gcc \
@@ -69,9 +74,9 @@ RUN apt-get update && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 
-ENV LC_ALL en_GB.UTF-8 
-ENV LANG en_GB.UTF-8  
-ENV LANGUAGE en_GB:en   
+ENV LC_ALL en_GB.UTF-8
+ENV LANG en_GB.UTF-8
+ENV LANGUAGE en_GB:en
 
 ARG USER=klippy
 ARG HOME=/home/${USER}
@@ -89,7 +94,7 @@ RUN useradd --user-group --no-log-init --shell /bin/false -m -d ${HOME} ${USER} 
     usermod -a -G dialout ${USER} && \
     mkdir -p /var/log/supervisor && \
     mkdir -p /var/log/klipper && chown ${USER}:${USER} /var/log/klipper ${HOME} && \
-    pip install --no-cache supervisord-dependent-startup gpiod && \
+    pip install --no-cache supervisord-dependent-startup gpiod --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
     mkdir -p /usr/lib/python3 && \
     ln -s /usr/local/lib/python3.10/site-packages /usr/lib/python3/dist-packages
 
