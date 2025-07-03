@@ -13,29 +13,32 @@ ENV WHEELS=/wheels
 ENV PYTHONUNBUFFERED=1
 
 RUN useradd -d ${HOME} -ms /bin/bash ${USER}
+
 RUN sed -i 's|http://[^/]*|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y \
-	locales \
-	git \
-	sudo \
-	wget \
-	curl \
-	gzip \
-	tar \
-	libffi-dev \
-	build-essential \
-	libncurses-dev \
-	libusb-dev \
-	gpiod \
-	libopenjp2-7 \
-	liblmdb-dev \
-	libsodium-dev
+    locales \
+    git \
+    sudo \
+    wget \
+    curl \
+    gzip \
+    tar \
+    libffi-dev \
+    build-essential \
+    libncurses-dev \
+    libusb-dev \
+    gpiod \
+    libopenjp2-7 \
+    liblmdb-dev \
+    libsodium-dev
 
 RUN sed -i -e 's/# en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/' /etc/locale.gen
 RUN locale-gen
+
 RUN python -m pip install -U pip wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
     pip wheel --no-cache-dir -w ${WHEELS} supervisord-dependent-startup gpiod numpy matplotlib --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+
 
 ENV LC_ALL en_GB.UTF-8
 ENV LANG en_GB.UTF-8
@@ -54,6 +57,7 @@ RUN ln -sf klipper_z_calibration/z_calibration.py klipper/klippy/extras/z_calibr
 RUN [ ! -d ${KLIPPER_VENV_DIR} ] && python3 -m venv ${KLIPPER_VENV_DIR}
 
 WORKDIR ${HOME}/klipper
+
 RUN ${KLIPPER_VENV_DIR}/bin/pip install wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
     ${KLIPPER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/klippy-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 RUN ${KLIPPER_VENV_DIR}/bin/python klippy/chelper/__init__.py
@@ -68,8 +72,10 @@ RUN git clone --single-branch --branch ${MOONRAKER_BRANCH} https://github.com/Ar
 RUN [ ! -d ${MOONRAKER_VENV_DIR} ] && python3 -m venv ${MOONRAKER_VENV_DIR}
 
 WORKDIR ${HOME}/moonraker
+
 RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel gpiod --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
     ${MOONRAKER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/moonraker-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+
 RUN ${MOONRAKER_VENV_DIR}/bin/python -m compileall moonraker
 
 FROM python:3.10-slim-bullseye as image
@@ -116,6 +122,7 @@ ENV PYTHONUNBUFFERED=1
 
 ARG DEVICE_GROUP=device
 ARG DEVICE_GID=987
+
 
 RUN useradd --user-group --no-log-init --shell /bin/false -m -d ${HOME} ${USER} && \
     groupadd -g ${DEVICE_GID} ${DEVICE_GROUP} && \
