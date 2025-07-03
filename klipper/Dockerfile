@@ -13,35 +13,42 @@ ENV WHEELS=/wheels
 ENV PYTHONUNBUFFERED=1
 
 RUN useradd -d ${HOME} -ms /bin/bash ${USER}
-RUN apt-get update && \
+
+RUN sed -i 's|http://[^/]*|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list && \
+    apt-get update && \
     apt-get install -y \
-	locales \
-	git \
-	sudo \
-	wget \
-	curl \
-	gzip \
-	tar \
-	libffi-dev \
-	build-essential \
-	libncurses-dev \
-	libusb-dev \
-	gpiod \
-	libopenjp2-7 \
-	liblmdb-dev \
-	libsodium-dev
+    locales \
+    git \
+    sudo \
+    wget \
+    curl \
+    gzip \
+    tar \
+    libffi-dev \
+    build-essential \
+    libncurses-dev \
+    libusb-dev \
+    gpiod \
+    libopenjp2-7 \
+    liblmdb-dev \
+    libsodium-dev
 
 RUN sed -i -e 's/# en_GB.UTF-8 UTF-8/en_GB.UTF-8 UTF-8/' /etc/locale.gen
 RUN locale-gen
-RUN python -m pip install -U pip wheel && \
-    pip wheel --no-cache-dir -w ${WHEELS} supervisord-dependent-startup gpiod numpy matplotlib
 
-ENV LC_ALL en_GB.UTF-8 
-ENV LANG en_GB.UTF-8  
-ENV LANGUAGE en_GB:en   
+RUN python -m pip install -U pip wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
+    pip wheel --no-cache-dir -w ${WHEELS} supervisord-dependent-startup gpiod numpy matplotlib --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+
+
+ENV LC_ALL en_GB.UTF-8
+ENV LANG en_GB.UTF-8
+ENV LANGUAGE en_GB:en
 
 USER ${USER}
 WORKDIR ${HOME}
+
+ENV https_proxy http://10.168.8.22:6010
+ENV no_proxy localhost,127.0.0.1,.edu.cn,.cn,cdn-lfs-us-1.hf.co,.gvt1-cn.com
 
 ### Klipper setup ###
 RUN git clone --single-branch --branch ${KLIPPER_BRANCH} https://github.com/Klipper3d/klipper.git klipper
@@ -50,8 +57,9 @@ RUN ln -sf klipper_z_calibration/z_calibration.py klipper/klippy/extras/z_calibr
 RUN [ ! -d ${KLIPPER_VENV_DIR} ] && python3 -m venv ${KLIPPER_VENV_DIR}
 
 WORKDIR ${HOME}/klipper
-RUN ${KLIPPER_VENV_DIR}/bin/pip install wheel && \
-    ${KLIPPER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/klippy-requirements.txt
+
+RUN ${KLIPPER_VENV_DIR}/bin/pip install wheel --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
+    ${KLIPPER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/klippy-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
 RUN ${KLIPPER_VENV_DIR}/bin/python klippy/chelper/__init__.py
 RUN ${KLIPPER_VENV_DIR}/bin/python -m compileall klippy
 
@@ -64,15 +72,18 @@ RUN git clone --single-branch --branch ${MOONRAKER_BRANCH} https://github.com/Ar
 RUN [ ! -d ${MOONRAKER_VENV_DIR} ] && python3 -m venv ${MOONRAKER_VENV_DIR}
 
 WORKDIR ${HOME}/moonraker
-RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel gpiod && \
-    ${MOONRAKER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/moonraker-requirements.txt
+
+RUN ${MOONRAKER_VENV_DIR}/bin/pip install wheel gpiod --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
+    ${MOONRAKER_VENV_DIR}/bin/pip install --no-cache-dir -f ${WHEELS} -r scripts/moonraker-requirements.txt --index-url https://pypi.mirrors.ustc.edu.cn/simple/
+
 RUN ${MOONRAKER_VENV_DIR}/bin/python -m compileall moonraker
 
 FROM python:3.10-slim-bullseye as image
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && \
+RUN sed -i 's|http://[^/]*|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list && \
+    apt-get update && \
     apt-get install -y \
     curl \
     git \
@@ -96,9 +107,9 @@ RUN apt-get update && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 
-ENV LC_ALL en_GB.UTF-8 
-ENV LANG en_GB.UTF-8  
-ENV LANGUAGE en_GB:en   
+ENV LC_ALL en_GB.UTF-8
+ENV LANG en_GB.UTF-8
+ENV LANGUAGE en_GB:en
 
 ARG USER=klippy
 ARG HOME=/home/${USER}
@@ -123,10 +134,12 @@ RUN useradd --user-group --no-log-init --shell /bin/false -m -d ${HOME} ${USER} 
 
 COPY --chown=${USER}:${USER} --from=builder ${WHEELS} ${WHEELS}
 
-RUN pip install --no-index -f ${WHEELS} supervisord-dependent-startup gpiod numpy matplotlib && \
+RUN pip install --no-index -f ${WHEELS} supervisord-dependent-startup gpiod numpy matplotlib --index-url https://pypi.mirrors.ustc.edu.cn/simple/ && \
     mkdir -p /usr/lib/python3 && \
     ln -s /usr/local/lib/python3.10/site-packages /usr/lib/python3/dist-packages && \
     rm -Rf ${WHEELS}
+
+RUN usermod -aG root ${USER}
 
 USER ${USER}
 WORKDIR ${HOME}
@@ -151,4 +164,4 @@ COPY --chown=${USER}:${USER} klipper/run_in_venv /usr/local/bin/run_in_venv
 
 COPY klipper/supervisord.conf /etc/supervisord/conf.d/supervisord.conf
 COPY klipper/*.ini /etc/supervisord/
-CMD ["supervisord", "-c", "/etc/supervisord/conf.d/supervisord.conf"]
+CMD supervisord -c /etc/supervisord/conf.d/supervisord.conf

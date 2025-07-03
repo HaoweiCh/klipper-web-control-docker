@@ -1,20 +1,12 @@
-![Mainsail Multiarch Image CI](https://github.com/dimalo/klipper-web-control-docker/workflows/Mainsail%20Multiarch%20Image%20CI/badge.svg)
-![Klipper Moonraker Multiarch Image CI](https://github.com/dimalo/klipper-web-control-docker/workflows/Klipper%20Moonraker%20Multiarch%20Image%20CI/badge.svg)
-
-- [klipper-web-control-docker](#klipper-web-control-docker)
-  - [Features](#features)
-  - [Getting started](#getting-started)
-    - [Install the services](#install-the-services)
-    - [If things are running fine now...](#if-things-are-running-fine-now)
-    - [If things are not running...](#if-things-are-not-running)
-  - [Features not implemented or not tested (yet)](#features-not-implemented-or-not-tested-yet)
-  - [Credits](#credits)
 # klipper-web-control-docker
+
 __Klipper with Moonraker shipped with Fluidd and/or Mainsail__
+
+* 目前默认适配的打印机是 ender3 s1 国行版本（STM32F401）
+* 添加 ustc mirror
 
 - get your printer to the next level!
 - Docker Compose config and Dockerfiles provided!
-- Build with Github actions and deployed to https://hub.docker.com/u/dimalo
 - Docker multiarch builds with best practices
 
 ## Features
@@ -25,9 +17,9 @@ __Klipper with Moonraker shipped with Fluidd and/or Mainsail__
 - Optionally use the klipper_z_calibration-extension
 - collection of useful klipper macros [see client_macros.cfg](./config/client_macros.cfg)
   - Nozzle prime line with random Y starting point
-    
+
     Don't use the same starting point for priming to reduce bed wear!
-  
+
   - safe filament load / unload / change, which checks for sufficient (configurable) nozzle temperature
 
   - best practice start gcode:
@@ -78,7 +70,7 @@ ___Prerequisites:___
     - mount printer.cfg if already prepared (else you will be able to set it up later as well...)
 1. run ```docker-compose pull && docker-compose up``` if you want to use the provided dockerhub images, else run ```docker-compose up``` to first build them on your host
 1. watch the services being set up
-    - make sure you have no port conflicts on 7125, 8010 and 8011 
+    - make sure you have no port conflicts on 7125, 8010 and 8011
     - make sure klipper and moonraker started
     - leave the compose session running
 1. test the frontends

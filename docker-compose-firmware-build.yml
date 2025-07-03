@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  klipper-firmware:
+    image: heawercher/klipper-firmware
+    build:
+      dockerfile: ./klipper/builder.Dockerfile
+      context: .
+    container_name: klipper-firmware
+    volumes:
+      - gcode_files:/home/klippy/gcode_files
+      - ./klipper/build-config:/home/klippy/klipper/.config
+      - ./klipper/config:/home/klippy/klippy/.config
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0
+    command: sleep 3600
+
+volumes: 
+  gcode_files:
